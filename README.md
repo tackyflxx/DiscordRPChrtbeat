@@ -7,6 +7,9 @@
 [![Documentation](https://img.shields.io/badge/documentation-Jazzy-blueviolet)](https://aeddi.github.io/DiscordRPC)
 [![License](https://img.shields.io/github/license/aeddi/DiscordRPC?color=blue)](https://github.com/aeddi/DiscordRPC/blob/master/LICENSE)
 
+CREATED BY AEDDI, MINOR CHANGED BY ME
+FOR HRTBEAT INTERNAL USE
+
 A Discord RPC library for Swift on macOS.  
 
 All commands and payloads are wrapped in Swift methods and types.  
