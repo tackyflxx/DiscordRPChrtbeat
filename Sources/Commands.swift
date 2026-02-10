@@ -91,6 +91,78 @@ extension DiscordRPC {
         return nonce
     }
 
+    // MARK: - Rich Presence (SET_ACTIVITY)
+
+    public func setActivity(
+        details: String? = nil,
+        state: String? = nil,
+        type: Int = 2, // 2 = LISTENING, 0 = PLAYING
+        start: Date? = nil,
+        end: Date? = nil,
+        largeImageKey: String? = nil,
+        largeText: String? = nil,
+        smallImageKey: String? = nil,
+        smallText: String? = nil
+    ) throws {
+        let nonce = generateNonce()
+        let pid = Int(ProcessInfo.processInfo.processIdentifier)
+
+        var activity: [String: Any] = [:]
+        if let details { activity["details"] = details }
+        if let state { activity["state"] = state }
+
+        activity["type"] = type
+        
+        if start != nil || end != nil {
+            var ts: [String: Int64] = [:]
+            if let start { ts["start"] = Int64(start.timeIntervalSince1970 * 1000) }
+            if let end   { ts["end"]   = Int64(end.timeIntervalSince1970 * 1000) }
+            activity["timestamps"] = ts
+        }
+
+        if largeImageKey != nil || largeText != nil || smallImageKey != nil || smallText != nil {
+            var assets: [String: Any] = [:]
+            if let largeImageKey { assets["large_image"] = largeImageKey }
+            if let largeText { assets["large_text"] = largeText }
+            if let smallImageKey { assets["small_image"] = smallImageKey }
+            if let smallText { assets["small_text"] = smallText }
+            activity["assets"] = assets
+        }
+
+        let payload: [String: Any] = [
+            "cmd": CommandType.setActivity.rawValue,   // "SET_ACTIVITY"
+            "args": [
+                "pid": pid,
+                "activity": activity
+            ],
+            "nonce": nonce
+        ]
+
+        let data = try JSONSerialization.data(withJSONObject: payload, options: [])
+        let json = String(data: data, encoding: .utf8) ?? "{}"
+
+        _ = try syncResponse(requestJSON: json, nonce: nonce)
+    }
+
+    public func clearActivity() throws {
+        let nonce = generateNonce()
+        let pid = Int(ProcessInfo.processInfo.processIdentifier)
+
+        let payload: [String: Any] = [
+            "cmd": CommandType.setActivity.rawValue,
+            "args": [
+                "pid": pid,
+                "activity": NSNull()
+            ],
+            "nonce": nonce
+        ]
+
+        let data = try JSONSerialization.data(withJSONObject: payload, options: [])
+        let json = String(data: data, encoding: .utf8) ?? "{}"
+
+        _ = try syncResponse(requestJSON: json, nonce: nonce)
+    }
+    
     // ---------------- //
     // Internal methods //
     // ---------------- //
